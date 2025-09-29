@@ -199,7 +199,6 @@ paths:
         '404':
           description: Пользователь не найден
 
-
   /users/{id}/subscribers:
     post:
       summary: Подписаться на пользователя / отписаться от пользователя
@@ -323,7 +322,6 @@ paths:
                   $ref: '#/components/schemas/Place'
         '400':
           description: Ошибка валидации
-
 
 components:
   securitySchemes:
