@@ -1,0 +1,490 @@
+﻿openapi: 3.0.0
+info:
+  title: Социальная сеть для путешественников
+  description: Общий контракт для взаимодействия UI с бэк сервисами
+  version: 1.0.0
+
+tags:
+  - name: Posts
+    description: API для управления постами
+  - name: Users
+    description: API для управления пользователями
+  - name: Places
+    description: API для управления местами
+
+security:
+  - bearerAuth: []
+
+paths:
+  /posts:
+    post:
+      summary: Создание нового поста
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreateRequest'
+      responses:
+        '200':
+          description: Пост успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Ошибка валидации
+        '401':
+          description: Не авторизован
+
+  /posts/my-feed:
+    get:
+      summary: Получить список постов для текущего пользователя
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Количество постов на странице
+      responses:
+        '200':
+          description: Успешное получение списка постов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+        '401':
+          description: Не авторизован
+
+  /posts/{id}:
+    get:
+      summary: Получить пост по ID
+      tags:
+        - Posts
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Успешное получение поста
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Пост не найден
+
+  /posts/{id}/comments:
+    post:
+      summary: Написать комментарий к посту
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+      responses:
+        '200':
+          description: Комментарий успешно добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пост не найден
+    get:
+      summary: Получить комментарии к посту
+      tags:
+        - Posts
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Успешное получение списка комментариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: Пост не найден
+
+  /posts/{id}/likes:
+    post:
+      summary: Поставить лайк посту
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        '201':
+          description: Лайк успешно обновлен
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пост не найден
+    get:
+      summary: Получить лайки к посту
+      tags:
+        - Posts
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Успешное получение списка лайкнувших
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        '404':
+          description: Пост не найден
+
+  /users/{id}/subscribers:
+    post:
+      summary: Подписаться на пользователя / отписаться от пользователя
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        '201':
+          description: Подписка/отписка на пользователя успешно обработана
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пользователь не найден
+    get:
+      summary: Получить список подписчиков
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Успешное получение списка подписчиков
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пользователь не найден
+
+  /users/{id}/subscriptions:
+    get:
+      summary: Получить список подписок
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Успешное получение списка подписок
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пользователь не найден
+
+  /discover/posts:
+    post:
+      summary: Поиск постов
+      tags:
+        - Posts
+        - Discover
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostDiscoverRequest'
+      responses:
+        '200':
+          description: Список найденных постов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Ошибка валидации
+
+  /discover/places:
+    post:
+      summary: Поиск популярных мест
+      tags:
+        - Discover
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceDiscoverRequest'
+      responses:
+        '200':
+          description: Список найденных мест
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        '400':
+          description: Ошибка валидации
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      description: Bearer token using a JWT
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+
+    PostId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: ID поста
+
+    UserId:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: ID пользователя
+
+  schemas:
+
+    PostId:
+      type: string
+      description: ID поста
+
+    UserId:
+      type: string
+      description: ID пользователя
+
+    Author:
+      type: object
+      required:
+        - id
+        - nickname
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        nickname:
+          type: string
+
+    PostCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+        - images
+        - geo_position
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+          minimum: 0
+          maximum: 3
+        geo_position:
+          $ref: '#/components/schemas/GeoPosition'
+
+    Post:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PostId'
+        title:
+          type: string
+        content:
+          type: string
+        geo_position:
+          $ref: '#/components/schemas/GeoPosition'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        author:
+          $ref: '#/components/schemas/Author'
+        created_at:
+          type: string
+          format: date-time
+        total_likes:
+          type: integer
+        total_comments:
+          type: integer
+
+    Image:
+      type: object
+      required:
+        - id
+        - url
+      properties:
+        id:
+          type: integer
+          format: int16
+          description: ID изображения (порядковый номер для референса)
+        url:
+          type: string
+          format: uri
+          description: URL изображения
+
+    GeoPosition:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: integer
+        longitude:
+          type: integer
+
+    CommentCreateRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: Текст комментария
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID комментария в посте (порядковый номер для референса)
+        author:
+          $ref: '#/components/schemas/Author'
+        content:
+          type: string
+          description: Текст комментария
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата создания комментария
+
+    Place:
+      type: object
+      properties:
+        geoPosition:
+          $ref: '#/components/schemas/GeoPosition'
+        rating:
+          type: number
+          minimum: 0
+          maximum: 1
+        popular_posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+
+    PostDiscoverRequest:
+      type: object
+      properties:
+        geoPosition:
+          $ref: '#/components/schemas/GeoPosition'
+        radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 100000
+        title:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    PlaceDiscoverRequest:
+      properties:
+        geoPosition:
+          $ref: '#/components/schemas/GeoPosition'
+        radius_meters:
+          type: integer
+          minimum: 10
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
