@@ -172,6 +172,34 @@ paths:
         '404':
           description: Пост не найден
 
+  /users/{id}/posts:
+    get:
+      summary: Получить список постов пользователя
+      tags:
+        - Users
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Успешное получение списка постов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+        '401':
+          description: Не авторизован
+        '404':
+          description: Пользователь не найден
+
+
   /users/{id}/subscribers:
     post:
       summary: Подписаться на пользователя / отписаться от пользователя
