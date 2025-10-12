@@ -7,6 +7,8 @@ info:
 tags:
   - name: Posts
     description: API для управления постами
+  - name: Media
+    description: API для управления медиафайлами
   - name: Users
     description: API для управления пользователями
   - name: Places
@@ -16,6 +18,58 @@ security:
   - bearerAuth: []
 
 paths:
+  /images:
+    post:
+      summary: Загрузка картинок
+      tags:
+        - Media
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Файл успешно загружен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageId:
+                    type: string
+                    description: Идентификатор для доступа к картинке
+        '400':
+          description: Ошибка валидации
+        '401':
+          description: Не авторизован
+
+  /images/{imageId}/file:
+    get:
+      summary: Получение картинки
+      tags:
+        - Media
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Файл изображения
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Не авторизован
+        '404':
+          description: Изображение не найдено
+
   /posts:
     post:
       summary: Создание нового поста
@@ -56,6 +110,12 @@ paths:
             minimum: 1
             maximum: 100
           description: Количество постов на странице
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Смещение постов от первого
       responses:
         '200':
           description: Успешное получение списка постов
@@ -423,17 +483,10 @@ components:
     Image:
       type: object
       required:
-        - id
-        - url
+        - imageId
       properties:
-        id:
-          type: integer
-          format: int16
-          description: ID изображения (порядковый номер для референса)
-        url:
+        imageId:
           type: string
-          format: uri
-          description: URL изображения
 
     GeoPosition:
       type: object
@@ -502,6 +555,9 @@ components:
           type: integer
           minimum: 1
           maximum: 100
+        offset:
+          type: integer
+          minimum: 0
 
     PlaceDiscoverRequest:
       properties:
@@ -514,3 +570,6 @@ components:
           type: integer
           minimum: 1
           maximum: 100
+        offset:
+          type: integer
+          minimum: 0
