@@ -1,0 +1,49 @@
+Table users {
+  id guid [not null, primary key]
+  nickname text [not null]
+  created_at timestamp [not null]
+}
+
+Table files {
+  id guid [not null, primary key]
+  bucket text [not null]
+  resource text [not null]
+  filename text [not null]
+}
+
+Table posts {
+  id integer [not null, primary key]
+  title varchar [not null]
+  content text [not null]
+  author_id integer [not null]
+  created_at timestamp [not null]
+}
+
+Table post_files {
+  id guid [not null, primary key]
+  post_id guid [not null]
+  file_id guid [not null]
+}
+
+Table comments {
+  id guid [not null, primary key]
+  index_in_post integer [not null]
+  post_id guid [not null]
+  author_id guid [not null]
+  content varchar [not null]
+  created_at timestamp [not null]
+}
+
+Table follows {
+  following_user_id guid [not null]
+  followed_user_id guid [not null]
+  created_at timestamp [not null]
+}
+
+Ref: posts.author_id > users.id
+Ref: follows.following_user_id > users.id
+Ref: follows.followed_user_id > users.id
+Ref: comments.author_id > users.id
+Ref: comments.post_id > posts.id
+Ref: post_files.post_id > posts.id
+Ref: post_files.file_id > files.id
