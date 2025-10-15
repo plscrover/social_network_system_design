@@ -12,7 +12,7 @@ Table files {
 }
 
 Table posts {
-  id integer [not null, primary key]
+  id guid [not null, primary key]
   title varchar [not null]
   content text [not null]
   author_id integer [not null]
