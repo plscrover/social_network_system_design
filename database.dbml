@@ -36,9 +36,16 @@ Table follows {
   created_at timestamp [not null]
 }
 
+Table likes {
+  post_id guid [not null, primary key]
+  author_id guid [not null, primary key]
+}
+
 Ref: posts.author_id > users.id
 Ref: follows.following_user_id > users.id
 Ref: follows.followed_user_id > users.id
 Ref: comments.author_id > users.id
 Ref: comments.post_id > posts.id
+Ref: likes.author_id > users.id
+Ref: likes.post_id > posts.id
 Ref: files.post_id > posts.id
