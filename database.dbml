@@ -6,6 +6,7 @@ Table users {
 
 Table files {
   id guid [not null, primary key]
+  post_id guid [not null]
   bucket text [not null]
   resource text [not null]
   filename text [not null]
@@ -16,13 +17,8 @@ Table posts {
   title varchar [not null]
   content text [not null]
   author_id integer [not null]
+  geo GEOGRAPHY(Point) [not null]
   created_at timestamp [not null]
-}
-
-Table post_files {
-  id guid [not null, primary key]
-  post_id guid [not null]
-  file_id guid [not null]
 }
 
 Table comments {
@@ -45,5 +41,4 @@ Ref: follows.following_user_id > users.id
 Ref: follows.followed_user_id > users.id
 Ref: comments.author_id > users.id
 Ref: comments.post_id > posts.id
-Ref: post_files.post_id > posts.id
-Ref: post_files.file_id > files.id
+Ref: files.post_id > posts.id
