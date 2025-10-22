@@ -1,0 +1,31 @@
+@startuml
+!include C4/C4_Container.puml
+
+'title С2: System Container (Posts System)
+
+AddElementTag(out_of_scope, $bgColor="#E0E0E0", $fontColor="#666666", $borderColor="#999999")
+AddElementTag(postgresql, $bgColor="#336791", $fontColor="#FFFFFF")
+
+Person(user, "User")
+Container(apiGateway, "API Gateway", "Istio, Load balancing, Routing")
+System_Boundary(usersSystem, "Users System") {
+    Container(authService, "Auth Service", $tags="out_of_scope")
+    Container(userService, "User Service", $tags="out_of_scope")
+}
+System_Boundary(postsSystem, "Posts System") {
+    ' Container(discoveryService, "Discovery Service", $tags="out_of_scope")
+    Container(postService, "Post Service")
+    Container(postDB, "Database", "PostgreSQL")
+    Container(s3, "File Storage", "Minio")
+}
+
+user -> apiGateway: Http
+apiGateway -> authService: Http
+'apiGateway --> discoveryService: Http
+apiGateway --> postService: Http
+authService -> userService: Http
+userService <-- postService: Http
+'postService -right-> discoveryService: Queue
+postService --> postDB
+postService --> s3
+@enduml

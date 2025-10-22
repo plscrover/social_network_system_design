@@ -1,0 +1,17 @@
+@startuml
+!include C4/C4_Container.puml
+
+'title С1: System Context
+
+AddElementTag("out_of_scope", $bgColor="#E0E0E0", $fontColor="#666666", $borderColor="#999999")
+
+Person(user, "User")
+Container(apiGateway, "API Gateway", "Istio, Load balancing, Routing")
+Container(usersSystem, "Users System", $tags="out_of_scope")
+Container(postsSystem, "Post System")
+
+user --> apiGateway: Http
+apiGateway --> postsSystem: Http
+apiGateway --> usersSystem: Http
+postsSystem -> usersSystem: Http
+@enduml

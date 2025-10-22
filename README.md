@@ -98,4 +98,10 @@ System Design социальной сети для курса по System Desi
 Расчёт пользователей: 10 000 000 * (16 + 64*8 + 8)В = 5.3 GB 
 
 ## Схема базы данных
-![Схема базы данных](database.svg)
+![Схема базы данных](db/database.svg)
+
+## Дизайн системы
+### С1: System Context
+![C1: System Context](arch/c1.svg)
+### С2: System Container (Posts System)
+![C2: System Container (Posts System)](arch/c2.svg)
